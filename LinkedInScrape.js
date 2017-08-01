@@ -1,4 +1,6 @@
 /*
+---PLEASE NOTE: THIS IS FOR EDUCATIONAL PURPOSES ONLY---
+
 Script to scrape linkedin contacts for a certain company or search
 
 Authors - Erkin Djindjiev (@SeaErkin)
