@@ -1,7 +1,17 @@
+/*
+Script to scrape linkedin contacts for a certain company or search
+
+Authors - Erkin Djindjiev (@SeaErkin)
+          Ryan Bradbury (@rj4yb3)
+*/
+
+
+//Set pagelimit - generally the # of connections divided by 10
+var pageLimit = 2;
+
 var nameClassSelector = '.actor-name';
 var titleClassSelector = 'p.subline-level-1';
 var nextButtonClassSelector = '.next-text';
-var pageLimit = 2;
 
 var names = [];
 var titles = [];
