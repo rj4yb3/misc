@@ -5,6 +5,13 @@ Script to scrape linkedin contacts for a certain company or search
 
 Authors - Erkin Djindjiev (@SeaErkin)
           Ryan Bradbury (@rj4yb3)
+          
+Instructions - 
+          1) navigate the first page of contacts
+          2) open your web browser developer tools 
+          3) modify the pageLimit variable to fit the # of pages you'd like to scrape
+          4) paste script into console and run
+          5) open excel file and enjoy
 */
 
 
