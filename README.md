@@ -3,4 +3,4 @@ Just some random scripts
 
 1) LinkedInScrape.js
 
-//![alt text](https://raw.githubusercontent.com/rj4yb3/misc/Stuff/LinkedInScrape.gif)
+![alt text](https://github.com/rj4yb3/misc/blob/master/Stuff/LinkedInScrape.gif)
