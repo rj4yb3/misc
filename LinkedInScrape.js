@@ -11,20 +11,30 @@ Instructions -
           2) open your web browser developer tools 
           3) modify the pageLimit variable to fit the # of pages you'd like to scrape
           4) paste script into console and run
-          5) open excel file and enjoy
+          5) open csv file and enjoy
 */
 
 
-//Set pagelimit - generally the # of connections divided by 10
-var pageLimit = 2;
+// If you want you can set the pages manually, otherwise it will page through all results.
+var pageLimitManual = null;
 
+var pageLimitSelector = 'span.search-results__total.search-results__total';
 var nameClassSelector = '.actor-name';
 var titleClassSelector = 'p.subline-level-1';
 var nextButtonClassSelector = '.next-text';
+var resultsPerPage = 10;
+
+var pageLimit = pageLimitManual || getPageLimit();
 
 var names = [];
 var titles = [];
 
+var i = 0;
+window.scrollTo(0, document.body.scrollHeight);
+
+getNextPageLoop();
+
+// functions
 function scrollFunction() {
   var namesInner = $(nameClassSelector);
   var titlesInner = $(titleClassSelector);
@@ -32,10 +42,13 @@ function scrollFunction() {
     names.push(namesInner[i].innerText);
     titles.push(titlesInner[i].innerText);
   }
-
-  console.log('clicking');
   $(nextButtonClassSelector).click();
   window.scrollTo(0, document.body.scrollHeight);
+}
+
+function getPageLimit() {
+  var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[0];
+  return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
 }
 
 function jsonToCsv(json, fileName) {
@@ -62,35 +75,41 @@ function jsonToCsv(json, fileName) {
     link.click();
 }
 
-var i = 0;
-window.scrollTo(0, document.body.scrollHeight);
-
-//function myLoop (names, titles) {       
-function myLoop() {  
+function getNextPageLoop() {  
    setTimeout(function () {
     window.scrollTo(0, document.body.scrollHeight);
     scrollFunction();
     i++;                 
-    if (i < pageLimit) {        
-       myLoop(); 
+    if (i < pageLimit) {   
+      console.log('Page ' + i + ' of ' + pageLimit);
+      getNextPageLoop(); 
     } else {
+      console.log('Page ' + i + ' of ' + pageLimit);
       afterLoop(names, titles);
     }
    }, 5000)
 }
 
-myLoop(names, titles);
-
 function afterLoop() {
-  var output = [];
+  var people = [];
+
   for (var index = 0; index < names.length; index++) {
      var person = {
        "Name": names[index],
        "Title": titles[index],
      };
-     output.push(person);
+     people.push(person);
   }
+
+  // remove duplicates
+  var unique = new Set();
+  people.forEach(p => {
+    unique.add(JSON.stringify(p));
+  });
+
+  var output = Array.from(unique).map(p => JSON.parse(p));
 
   jsonToCsv(output, 'output.csv');
   return;
 }
+
