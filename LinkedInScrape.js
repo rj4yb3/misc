@@ -18,7 +18,7 @@ Instructions -
 // If you want you can set the pages manually, otherwise it will page through all results.
 var pageLimitManual = null;
 
-var pageLimitSelector = 'span.search-results__total.search-results__total';
+var pageLimitSelector = '.search-results__total';
 var nameClassSelector = '.actor-name';
 var titleClassSelector = 'p.subline-level-1';
 var nextButtonClassSelector = '.next-text';
@@ -47,8 +47,12 @@ function scrollFunction() {
 }
 
 function getPageLimit() {
-  var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[0];
-  return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
+  if ($(pageLimitSelector)[0] == null){
+    return 2;
+  } else {
+    var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[1];
+    return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
+  }
 }
 
 function jsonToCsv(json, fileName) {
@@ -112,4 +116,3 @@ function afterLoop() {
   jsonToCsv(output, 'output.csv');
   return;
 }
-
