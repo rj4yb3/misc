@@ -71,10 +71,10 @@ function jsonToCsv(json, fileName) {
       csvContent += row + "\n";
     });
 
-    var encodedUri = encodeURI(csvContent);
+    var blobdata = new Blob([csvContent],{type : 'text/csv'});
     var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", fileName);
+    link.setAttribute("href", window.URL.createObjectURL(blobdata));  
+    link.setAttribute("download", "output.csv");
     document.body.appendChild(link);
     link.click();
 }
