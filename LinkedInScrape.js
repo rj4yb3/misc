@@ -1,27 +1,10 @@
-/*
----PLEASE NOTE: THIS IS FOR EDUCATIONAL PURPOSES ONLY---
-
-Script to scrape linkedin contacts for a certain company or search
-
-Authors - Erkin Djindjiev (@SeaErkin)
-          Ryan Bradbury (@rj4yb3)
-          
-Instructions - 
-          1) navigate the first page of contacts
-          2) open your web browser developer tools 
-          3) modify the pageLimit variable to fit the # of pages you'd like to scrape
-          4) paste script into console and run
-          5) open csv file and enjoy
-*/
-
-
-// If you want you can set the pages manually, otherwise it will page through all results.
 var pageLimitManual = null;
 
-var pageLimitSelector = 'span.search-results__total.search-results__total';
+var pageLimitSelector = '.search-results__total';
 var nameClassSelector = '.actor-name';
 var titleClassSelector = 'p.subline-level-1';
-var nextButtonClassSelector = '.next-text';
+//modify the ember# to meet the buttom ember value
+var nextButtonClassSelector = '#ember3190';
 var resultsPerPage = 10;
 
 var pageLimit = pageLimitManual || getPageLimit();
@@ -47,8 +30,12 @@ function scrollFunction() {
 }
 
 function getPageLimit() {
-  var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[0];
-  return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
+  if ($(pageLimitSelector)[0] == null){
+    return 2;
+  } else {
+    var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[1];
+    return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
+  }
 }
 
 function jsonToCsv(json, fileName) {
@@ -67,10 +54,10 @@ function jsonToCsv(json, fileName) {
       csvContent += row + "\n";
     });
 
-    var encodedUri = encodeURI(csvContent);
+    var blobdata = new Blob([csvContent],{type : 'text/csv'});
     var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", fileName);
+    link.setAttribute("href", window.URL.createObjectURL(blobdata));  
+    link.setAttribute("download", "output.csv");
     document.body.appendChild(link);
     link.click();
 }
@@ -112,4 +99,3 @@ function afterLoop() {
   jsonToCsv(output, 'output.csv');
   return;
 }
-
