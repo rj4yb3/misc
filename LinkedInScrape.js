@@ -1,8 +1,6 @@
 /*
 ---PLEASE NOTE: THIS IS FOR EDUCATIONAL PURPOSES ONLY---
-
 Script to scrape linkedin contacts for a certain company or search
-
 Authors - Erkin Djindjiev (@SeaErkin)
           Ryan Bradbury (@rj4yb3)
           
@@ -14,14 +12,15 @@ Instructions -
           5) open csv file and enjoy
 */
 
+//FIX MEEEEEEE - set this value to the button ID #
+var nextButtonClassSelector = '#ember3190';
 
 // If you want you can set the pages manually, otherwise it will page through all results.
 var pageLimitManual = null;
 
-var pageLimitSelector = '.search-results__total';
+var pageLimitSelector = 'span.search-results__total.search-results__total';
 var nameClassSelector = '.actor-name';
 var titleClassSelector = 'p.subline-level-1';
-var nextButtonClassSelector = '.next-text';
 var resultsPerPage = 10;
 
 var pageLimit = pageLimitManual || getPageLimit();
@@ -47,12 +46,8 @@ function scrollFunction() {
 }
 
 function getPageLimit() {
-  if ($(pageLimitSelector)[0] == null){
-    return 2;
-  } else {
-    var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[1];
-    return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
-  }
+  var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[0];
+  return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
 }
 
 function jsonToCsv(json, fileName) {
@@ -71,10 +66,10 @@ function jsonToCsv(json, fileName) {
       csvContent += row + "\n";
     });
 
-    var blobdata = new Blob([csvContent],{type : 'text/csv'});
+    var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
-    link.setAttribute("href", window.URL.createObjectURL(blobdata));  
-    link.setAttribute("download", "output.csv");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", fileName);
     document.body.appendChild(link);
     link.click();
 }
