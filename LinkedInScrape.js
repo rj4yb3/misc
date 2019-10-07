@@ -12,45 +12,82 @@ Instructions -
           5) open csv file and enjoy
 */
 
-//FIX MEEEEEEE - set this value to the button ID #
-var nextButtonClassSelector = '#ember3190';
+function main() {
 
-// If you want you can set the pages manually, otherwise it will page through all results.
-var pageLimitManual = null;
+    var names = [];
+    var titles = [];
 
-var pageLimitSelector = 'span.search-results__total.search-results__total';
-var nameClassSelector = '.actor-name';
-var titleClassSelector = 'p.subline-level-1';
-var resultsPerPage = 10;
+    // CSS classes defined here because they may change in the future.
+    var nextButtonClass = "artdeco-pagination__button artdeco-pagination__button--next";
+    var nameClass = "actor-name";
+    var titleClass = "subline-level-1";
 
-var pageLimit = pageLimitManual || getPageLimit();
+    // Stops at 10 pages by default or whenever it can't hit the next button
+    var stopAtPage = 10;
 
-var names = [];
-var titles = [];
+    // Set this to true if you want to print the names\titles to console while the script runs
+    var printDuringRun = true;
 
-var i = 0;
-window.scrollTo(0, document.body.scrollHeight);
+    // Setting zoom to 50% so 10 results fit on one page. This may only work in Chrome
+    document.body.style.zoom = "30%"
 
-getNextPageLoop();
+    async function load() {
+        for (let currentPage = 0; currentPage < stopAtPage; currentPage++) {
 
-// functions
-function scrollFunction() {
-  var namesInner = $(nameClassSelector);
-  var titlesInner = $(titleClassSelector);
-  for (var i = 0; i < namesInner.length; i++) {
-    names.push(namesInner[i].innerText);
-    titles.push(titlesInner[i].innerText);
-  }
-  $(nextButtonClassSelector).click();
-  window.scrollTo(0, document.body.scrollHeight);
+            if (currentPage != 0)
+              await sleep(2000);
+
+            // grab names and titles
+            namesChunk = getInnerText(document.getElementsByClassName(nameClass));
+            titlesChunk = getInnerText(document.getElementsByClassName(titleClass));
+
+            // add to the existing array for each page
+            names = names.concat(namesChunk);
+            titles = titles.concat(titlesChunk);
+
+            if (printDuringRun) {
+                console.log(namesChunk.join(", "));
+                console.log(titlesChunk.join(", "));
+            }
+                
+            // wait three seconds before proceeding, no need to sleep on first page        
+            if (currentPage != 0)
+              await sleep(2000);
+
+            // if the next button is disabled or an error happens trying to go to next page, stop and output to csv
+            try {
+                nextDisabled = document.getElementsByClassName(nextButtonClass)[0].hasAttribute("disabled");
+                if (!nextDisabled) {
+                    document.getElementsByClassName(nextButtonClass)[0].click();
+                } else {
+                    csvOutput(names, titles);
+                    break;
+                }
+            } catch (e) {
+                csvOutput(names, titles);
+                break;
+            }
+        }
+    }
+    load();
+
 }
 
-function getPageLimit() {
-  var pageLimitString =  $(pageLimitSelector)[0].innerText.split(' ')[0];
-  return Math.ceil(parseInt(pageLimitString)/resultsPerPage);
+function getInnerText(elements) {
+    text = [];
+    for (i = 0; i < elements.length; i++) {
+        text.push(elements[i].innerText);
+    }
+    return text;
 }
 
+function sleep(time) {
+    return new Promise((resolve)=>setTimeout(resolve, time));
+}
+
+// All the code below is for outputting to CSV
 function jsonToCsv(json, fileName) {
+    console.log(json, fileName);
     var fields = Object.keys(json[0]);
     var replacer = function (key, value) { return value === null ? '' : value }
     var csv = json.map(function (row) {
@@ -60,36 +97,19 @@ function jsonToCsv(json, fileName) {
     })
     csv.unshift(fields.join(',')) // add header column
 
-    var csvContent = "data:text/csv;charset=utf-8,";
+    var csvContent = "";
 
     csv.forEach(function (row, index) {
       csvContent += row + "\n";
     });
 
-    var encodedUri = encodeURI(csvContent);
-    var link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
+    downloadString(csvContent, "csv", "output");
 }
 
-function getNextPageLoop() {  
-   setTimeout(function () {
-    window.scrollTo(0, document.body.scrollHeight);
-    scrollFunction();
-    i++;                 
-    if (i < pageLimit) {   
-      console.log('Page ' + i + ' of ' + pageLimit);
-      getNextPageLoop(); 
-    } else {
-      console.log('Page ' + i + ' of ' + pageLimit);
-      afterLoop(names, titles);
-    }
-   }, 5000)
-}
+function csvOutput(names, titles) {
 
-function afterLoop() {
+  console.log("csv output", names, titles);
+
   var people = [];
 
   for (var index = 0; index < names.length; index++) {
@@ -111,3 +131,20 @@ function afterLoop() {
   jsonToCsv(output, 'output.csv');
   return;
 }
+
+function downloadString(text, fileType, fileName) {
+  var blob = new Blob([text], { type: fileType });
+
+  var a = document.createElement('a');
+  a.download = fileName;
+  a.href = URL.createObjectURL(blob);
+  a.dataset.downloadurl = [fileType, a.download, a.href].join(',');
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+}
+
+
+main();
