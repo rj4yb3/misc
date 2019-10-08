@@ -28,7 +28,7 @@ function main() {
     // Set this to true if you want to print the names\titles to console while the script runs
     var printDuringRun = true;
 
-    // Setting zoom to 50% so 10 results fit on one page. This may only work in Chrome
+    // Setting zoom to 30% so 10 results fit on one page. This may only work in Chrome
     document.body.style.zoom = "30%"
 
     async function load() {
@@ -50,7 +50,7 @@ function main() {
                 console.log(titlesChunk.join(", "));
             }
                 
-            // wait three seconds before proceeding, no need to sleep on first page        
+            // wait two seconds before proceeding, no need to sleep on first page        
             if (currentPage != 0)
               await sleep(2000);
 
@@ -68,6 +68,7 @@ function main() {
                 break;
             }
         }
+        csvOutput(names, titles);
     }
     load();
 
